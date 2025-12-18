@@ -1,0 +1,39 @@
+#!/bin/sh
+
+if [ -z "$ACCT" ]; then
+	echo 'Variable $ACCT is not set'
+	exit
+elif [ -z "$HOST" ]; then
+	echo 'Variable $HOST is not set'
+	exit
+elif [ -z "$PORT" ]; then
+	echo 'Variable $PORT is not set'
+	exit
+elif [ -z "$USER" ]; then
+	echo 'Variable $USER is not set'
+	exit
+elif [ -z "$PASS" ]; then
+	echo 'Variable $PASS is not set'
+	exit
+fi
+
+CONF=$(cat <<EOF
+action "maildir" maildir "%h/data/Maildir"
+account "$ACCT" imaps server "$HOST" user "$USER" pass "$PASS"
+match all action "maildir"
+EOF
+)
+
+while true; do
+	fdm -f <(echo "$CONF") -v fetch
+	HOST=$HOST PORT=$PORT USER=$USER PASS=$PASS imap-idle-until-new
+	status=$?
+
+	echo; echo "Exit Status: $status"; echo
+	if [ $status -eq 1 ]; then
+		echo "Sleeping..."
+		sleep 60
+	elif [ $status -eq 2 ]; then
+		exit
+	fi
+done
