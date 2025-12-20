@@ -26,6 +26,7 @@ EOF
 
 while true; do
 	fdm -f <(echo "$CONF") -v fetch
+    echo
 	HOST=$HOST PORT=$PORT USER=$USER PASS=$PASS imap-idle-until-new
 	status=$?
 

@@ -7,8 +7,9 @@
 #include <openssl/err.h>
 #include <netdb.h>
 
-#define CERT_PATH "/etc/ssl/cert.pem"
-#define TAG       "A%04d"
+#define CERT_PATH   "/etc/ssl/cert.pem"
+#define TAG         "A%04d"
+#define COMMAND_LOG "======== %s"
 
 enum {IDLE_NEWMAIL, IDLE_REISSUE, IDLE_ERROR};
 
@@ -179,6 +180,8 @@ int main(void) {
 	snprintf(ng, sizeof(ng), TAG " NO", seq);
 
 	SSL_write(ssl, buffer, len);
+	snprintf(buffer, sizeof(buffer), TAG " LOGIN %s ******\r\n", seq, user);
+	printf(COMMAND_LOG, buffer);
 
 	if (!process_response(ok, ng))
 		goto cleanup;
@@ -189,6 +192,7 @@ int main(void) {
 	snprintf(ng, sizeof(ng), TAG " NO", seq);
 
 	SSL_write(ssl, buffer, len);
+	printf(COMMAND_LOG, buffer);
 
 	if (!process_response(ok, ng))
 		goto cleanup;
@@ -198,6 +202,7 @@ int main(void) {
 		len = snprintf(buffer, sizeof(buffer), TAG " IDLE\r\n", seq);
 
 		SSL_write(ssl, buffer, len);
+		printf(COMMAND_LOG, buffer);
 
 		int status = process_idle();
 
@@ -206,6 +211,7 @@ int main(void) {
 		snprintf(ng, sizeof(ng), TAG " NO", seq);
 
 		SSL_write(ssl, buffer, len);
+		printf(COMMAND_LOG, buffer);
 
 		if (!process_response(ok, ng))
 			goto cleanup;
@@ -227,6 +233,7 @@ logout:
 	snprintf(ng, sizeof(ng), TAG " NO", seq);
 
 	SSL_write(ssl, buffer, len);
+	printf(COMMAND_LOG, buffer);
 
 	if (!process_response(ok, ng))
 		goto cleanup;
