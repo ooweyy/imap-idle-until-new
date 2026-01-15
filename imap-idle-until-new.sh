@@ -1,5 +1,7 @@
 #!/bin/sh
 
+SLEEP_SEC=60
+
 if [ -z "$ACCT" ]; then
 	echo 'Variable $ACCT is not set'
 	exit
@@ -32,8 +34,8 @@ while true; do
 
 	echo; echo "Exit Status: $status"; echo
 	if [ $status -eq 1 ]; then
-		echo "Sleeping..."
-		sleep 60
+		echo "Sleeping for $SLEEP_SEC secs..."
+		sleep $SLEEP_SEC
 	elif [ $status -eq 2 ]; then
 		exit
 	fi
